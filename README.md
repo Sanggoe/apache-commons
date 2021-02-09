@@ -76,17 +76,27 @@
 
 * 옵션이 발견되면 옵션 값이 true, 그렇지 않으면 값이 false이다.
 
+<br/>
+
 #### 옵션 만들기
 
 ```java
 // Options 객체 생성
 Options options = new Options();
 
-// t 옵션 추가
+// 생성자를 이용한 객체 생성
+Option op = new Option("op");
+// t 옵션 추가, 추가 인자 없음
 options.addOption("t", false, "현재 시간 표시");
-// c 옵션 추가
+// c 옵션 추가, 추가 인자 있음
 options.addOption("c", true, "country code");
+
+// 팩토리 메소드를 이용한 Option 객체 생성 및 추가
+options.addOption(Option.builder().longOpt("t").desc("-t option").hasArg(false).build());
+options.addOption(Option.builder().longOpt("c").desc("-c option").hasArg(true).build());
 ```
+
+<br/>
 
 #### Command line 인자 분석
 
@@ -98,13 +108,49 @@ try {
 	CommandLine cmd = parser.parse(options, args);
     
     if (cmd.hasOption("t")) {
-
-    } else {
-    
+		...
+    } else if (cmd.hasOption("c")) {
+    	...
     }
     
 } catch (ParseException e) {
-            System.err.println("Parsing failed. Reason: " + e.getMessage());
-        }
+	new HelpFormatter().printHelp("Sample CLI", options);
+	e.printStackTrace();
+}
 ```
+
+* CommandLineParser : 보통 구현체 객체를 반환하는 new DefaultParser()를 많이 사용한다.
+* CommandLine : 설정한 옵션을 담은 options와, 실행시 인자로 함께 받은 args를 넘겨 파싱을 수행한다.
+  * 이 때, option에 포함되는 옵션 인자가 존재하지 않으면 에러를 발생한다.
+* hasOption("") : 인자에 해당하는 옵션이 존재하는지 여부를 반환하는 함수이다.
+* HelpFormatter().printHelp("",_) : 안내 메시지와 options에 해당하는 옵션 인자, description을 출력해준다.
+
+<br/>
+
+#### Option.setArgs()
+
+* Option이 가질 수 있는 argument value의 개수를 설정하는 함수이다.
+* 해당 옵션의 추가 인자가 몇 개 인지 모를 경우에 사용할 수 있다.
+* 설정하는 방법은 다음과 같다.
+
+```java
+Option p = new Option("p");
+p.setArgs(Option.UNLIMITED_VALUES);
+```
+
+<br/>
+
+* 이미 Options에 들어가 있는 것을 설정하려면 다음과 같이 해주면 된다.
+
+```java
+options.addOption(Option.builder().longOpt("t").desc("-t option").hasArg(false).build());
+
+options.getOption("t").setArgs(Option.UNLIMITED_VALUES);
+```
+
+<br/>
+
+<br/>
+
+
 

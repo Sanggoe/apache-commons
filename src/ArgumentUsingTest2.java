@@ -39,33 +39,70 @@ public class ArgumentUsingTest2 {
         // 3. Java Property 옵션.
         //args = new String[]{"-D", "k1=v1"};
 
+        String[] helpList = new String[]{"-help : show option lists.", "-all : select all id",
+                "-part id1, id2... : select those id", "-miss : select missed id"};
+        args = new String[]{"-part", "0", "1", "2"};
 
         // Options 객체 생성
         Options options = new Options();
-
+        Option op = new Option("h", "help", false, "help message");
+        options.addOption(op);
+        //options.addOption("help", "help message");
         // all 옵션 추가
         options.addOption("all", false, "모든 id에 대해 수행");
         // part 옵션 추가
         options.addOption("part", true, "특정 id에 대해 수행");
         // miss 옵션 추가
-        options.addOption("miss", true, "누락된 id에 대해 수행");
+        options.addOption("miss", false, "누락된 id에 대해 수행");
 
         CommandLineParser parser = new DefaultParser();
         try {
             CommandLine cmd = parser.parse(options, args);
-            String countryCode = cmd.getOptionValue("c");
+            String[] countryCode = cmd.getArgs();
+            System.out.println("getArgs()" + countryCode);
+            System.out.println("args length : " + cmd.getArgs().length);
+            for (String s : countryCode) {
+                System.out.println(s);
+            }
+            System.out.println("getOptionvalue() : " + cmd.getOptionValue("part"));
+            System.out.println("getArgList() : ");
+            System.out.println("args length : " + cmd.getArgList());
+            for (String s : cmd.getArgList()) {
+                System.out.println(s);
+            }
 
+            System.out.println("parsing start.");
+
+            // help일 경우
+            if (cmd.hasOption("help")) {
+                System.out.println("This is help option");
+                for (String str : helpList) {
+                    System.out.println(str);
+                }
+            }
             // all일 경우
             if (cmd.hasOption("all")) {
-                System.out.println("Option t: " + calendar.getTime());
+                System.out.println("'all' option selected");
             }
             // part일 경우
             if (cmd.hasOption("part")) {
-                System.out.println(calendar.getTime());
+                System.out.println("'part' option selected");
+                for (String code : countryCode) {
+                    System.out.println(countryCode.length);
+                    System.out.println(code);
+                }
             }
-
+            // miss일 경우
+            if (cmd.hasOption("miss")) {
+                System.out.println("'miss' option selected");
+            }
+            System.out.println("parsing end.");
         } catch (ParseException e) {
             System.err.println("Parsing failed. Reason: " + e.getMessage());
+            System.out.println("-help : show option lists.");
+            System.out.println("-all : select all id");
+            System.out.println("-part id1, id2... : select those id");
+            System.out.println("-miss : select missed id");
         }
 
 
